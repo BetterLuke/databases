@@ -3,7 +3,8 @@
 # 
 
 import time
-import psycopg2
+import psycopg2 # import for accessing psql
+import bleach # import bleach for cleaning HTML
 
 ## Database connection
 
@@ -26,13 +27,17 @@ def GetAllPosts():
 
 ## Add a post to the database.
 def AddPost(content):
-    '''Add a new post to the database.
+    '''
+    Add a new post to the database. Uses bleach to sanitize the content 
+    so that users cannot post HTML into the database for maliciious reasons.
 
     Args:
       content: The text content of the new post.
     '''
+    
     DB = psycopg2.connect("dbname=forum")
     c = DB.cursor()
-    c.execute("INSERT INTO posts (content) VALUES (%s)", (content,))
+    c.execute("INSERT INTO posts (content) VALUES (%s)", 
+             (bleach.clean(content),))
     DB.commit()
     DB.close()
