@@ -4,6 +4,7 @@
 #
 
 import psycopg2
+import bleach
 
 
 def connect():
@@ -13,14 +14,30 @@ def connect():
 
 def deleteMatches():
     """Remove all the match records from the database."""
-
+    db = connect()
+    c = db.cursor()
+    c.execute("DELETE FROM matches")
+    db.commit()
+    db.close()
 
 def deletePlayers():
     """Remove all the player records from the database."""
-
+    db = connect()
+    c = db.cursor()
+    c.execute("DELETE FROM players")
+    db.commit()
+    db.close()
 
 def countPlayers():
     """Returns the number of players currently registered."""
+    db = connect()
+    c = db.cursor()
+    c.execute("SELECT count(id) FROM players")
+    player_count = int(c.fetchall()[0][0])
+    db.close()
+    # print player_count
+    return player_count
+
 
 
 def registerPlayer(name):
@@ -28,17 +45,26 @@ def registerPlayer(name):
   
     The database assigns a unique serial id number for the player.  (This
     should be handled by your SQL database schema, not in your Python code.)
+
+    INSERT INTO table_name (column1,column2,column3,...)
+    VALUES (value1,value2,value3,...);
   
     Args:
       name: the player's full name (need not be unique).
     """
+    db = connect()
+    c = db.cursor()
+    c.execute("INSERT INTO players (name) VALUES (%s)", 
+             (bleach.clean(name),)) # Sanitize the name
+    db.commit()
+    db.close()
 
 
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
 
-    The first entry in the list should be the player in first place, or a player
-    tied for first place if there is currently a tie.
+    The first entry in the list should be the player in first place, or a 
+    player tied for first place if there is currently a tie.
 
     Returns:
       A list of tuples, each of which contains (id, name, wins, matches):
@@ -47,6 +73,17 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
+
+    db = connect()
+    c = db.cursor()
+
+    c.execute("SELECT * FROM players ORDER BY id1 DESC")
+    standings = [{'content': str(row[1]), 'time': str(row[0])} 
+            for row in c.fetchall()]
+
+    standings = int(c.fetchall()[0][0])
+    db.close()
+    return standings
 
 
 def reportMatch(winner, loser):
@@ -73,5 +110,6 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
+
 
 
