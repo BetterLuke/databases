@@ -14,7 +14,7 @@
 -- Create the tournament database for all of the tournament information
 CREATE DATABASE tournament;
 
--- Destroy existing tables for testing
+-- Destroy existing tables for testing purposes
 DROP TABLE tournament, players, matches;
 
 -- Create a table for multiple tournaments
@@ -26,7 +26,6 @@ CREATE TABLE players ( name TEXT,
 					   id SERIAL PRIMARY KEY );
 
 -- Create a table for matches played
-CREATE TABLE matches ( p1 INT REFERENCES players(id),
-					   p2 INT REFERENCES players(id),
-					   winner INT REFERENCES players(id),
+CREATE TABLE matches ( winner INT REFERENCES players(id),
+					   loser INT REFERENCES players(id),
 					   id SERIAL PRIMARY KEY );
