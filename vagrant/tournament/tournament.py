@@ -38,8 +38,6 @@ def countPlayers():
     # print player_count
     return player_count
 
-
-
 def registerPlayer(name):
     """Adds a player to the tournament database.
   
@@ -57,7 +55,7 @@ def registerPlayer(name):
     c.execute("INSERT INTO players (name) VALUES (%s)", 
              (bleach.clean(name),)) # Sanitize the name
     db.commit()
-    db.close()
+    db.close() 
 
 
 def playerStandings():
@@ -76,12 +74,11 @@ def playerStandings():
 
     db = connect()
     c = db.cursor()
-
-    c.execute("SELECT * FROM players ORDER BY id1 DESC")
-    standings = [{'content': str(row[1]), 'time': str(row[0])} 
-            for row in c.fetchall()]
-
-    standings = int(c.fetchall()[0][0])
+    c.execute("SELECT id, name, wins, wins+losses AS matches "
+               "FROM standings ORDER BY losses ASC")
+    standings = [(int(row[0]), str(row[1]), 
+                  int(row[2]), int(row[3])) 
+                  for row in c.fetchall()]
     db.close()
     return standings
 
@@ -93,13 +90,13 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
+
     db = connect()
     c = db.cursor()
-    c.execute("INSERT INTO matches (name) VALUES (%s)", 
-             (bleach.clean(name),)) # Sanitize the name
+    c.execute("INSERT INTO matches (winner, loser) VALUES (%s, %s)", 
+             (bleach.clean(winner),bleach.clean(loser))) # Sanitize the name
     db.commit()
     db.close()
-
 
  
 def swissPairings():

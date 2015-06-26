@@ -22,10 +22,24 @@ CREATE TABLE tournament ( name TEXT,
 						  id SERIAL PRIMARY KEY);
 
 -- Create a table for player information
-CREATE TABLE players ( name TEXT,
+CREATE TABLE players ( player_name TEXT,
 					   id SERIAL PRIMARY KEY );
 
 -- Create a table for matches played
 CREATE TABLE matches ( winner INT REFERENCES players(id),
 					   loser INT REFERENCES players(id),
 					   id SERIAL PRIMARY KEY );
+
+-- Create a view for standings
+CREATE OR REPLACE VIEW standings AS
+	SELECT p.id AS id, 
+		   p.name AS name,
+		   COALESCE((SELECT count(winner)
+    		 FROM matches
+    		 WHERE winner = p.id
+    		 GROUP BY winner), 0) AS wins,
+		   COALESCE((SELECT count(loser)
+    		 FROM matches
+    		 WHERE loser = p.id
+    		 GROUP BY loser), 0) AS losses
+	 FROM players p;
