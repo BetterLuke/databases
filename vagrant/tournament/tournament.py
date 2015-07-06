@@ -57,7 +57,7 @@ def registerPlayer(name):
 
     db = connect()
     c = db.cursor()
-    c.execute("INSERT INTO players (name) VALUES (%s)", 
+    c.execute("INSERT INTO players (player_name) VALUES (%s)", 
              (bleach.clean(name),)) # Sanitize the name
     db.commit()
     db.close() 
@@ -120,11 +120,12 @@ def swissPairings():
         name2: the second player's name
     """
     standings = playerStandings()
-    #if len(standings) % 2 != 0:
-     #   standings = standings.append(('Bye','Bye',0,0))
 
-    # [(609, 'Twilight Sparkle', 1, 1), (611, 'Applejack', 1, 1),
-    #  (610, 'Fluttershy', 0, 1), (612, 'Pinkie Pie', 0, 1)]
+    """
+    Test case:
+    [(609, 'Twilight Sparkle', 1, 1), (611, 'Applejack', 1, 1),
+      (610, 'Fluttershy', 0, 1), (612, 'Pinkie Pie', 0, 1)]
+    """
 
     pairings = []
 
