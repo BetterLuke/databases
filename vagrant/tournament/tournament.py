@@ -9,11 +9,13 @@ import bleach
 
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
+
     return psycopg2.connect("dbname=tournament")
 
 
 def deleteMatches():
     """Remove all the match records from the database."""
+
     db = connect()
     c = db.cursor()
     c.execute("DELETE FROM matches")
@@ -22,6 +24,7 @@ def deleteMatches():
 
 def deletePlayers():
     """Remove all the player records from the database."""
+
     db = connect()
     c = db.cursor()
     c.execute("DELETE FROM players")
@@ -30,6 +33,7 @@ def deletePlayers():
 
 def countPlayers():
     """Returns the number of players currently registered."""
+
     db = connect()
     c = db.cursor()
     c.execute("SELECT count(id) FROM players")
@@ -50,6 +54,7 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
+
     db = connect()
     c = db.cursor()
     c.execute("INSERT INTO players (name) VALUES (%s)", 
@@ -75,7 +80,7 @@ def playerStandings():
     db = connect()
     c = db.cursor()
     c.execute("SELECT id, name, wins, wins+losses AS matches "
-               "FROM standings ORDER BY losses ASC")
+               "FROM standings ORDER BY wins DESC, losses ASC")
     standings = [(int(row[0]), str(row[1]), 
                   int(row[2]), int(row[3])) 
                   for row in c.fetchall()]
@@ -114,6 +119,17 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
+    standings = playerStandings()
+    #if len(standings) % 2 != 0:
+     #   standings = standings.append(('Bye','Bye',0,0))
 
+    # [(609, 'Twilight Sparkle', 1, 1), (611, 'Applejack', 1, 1),
+    #  (610, 'Fluttershy', 0, 1), (612, 'Pinkie Pie', 0, 1)]
 
+    pairings = []
 
+    for x in range(len(standings[::2])):
+        pairings.append((standings[x*2][0], standings[x*2][1], 
+            standings[x*2+1][0], standings[x*2+1][1]))
+
+    return pairings

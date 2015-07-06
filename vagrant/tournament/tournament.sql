@@ -30,7 +30,7 @@ CREATE TABLE matches ( winner INT REFERENCES players(id),
 					   loser INT REFERENCES players(id),
 					   id SERIAL PRIMARY KEY );
 
--- Create a view for standings
+-- Create a view for standings using the players and matches tables
 CREATE OR REPLACE VIEW standings AS
 	SELECT p.id AS id, 
 		   p.name AS name,
