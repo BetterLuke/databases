@@ -16,6 +16,12 @@ Contains:
 
 ## Changelog:
 
+### 7/14/15 - Added support for multiple tournaments:
+  * Added a tournament table for storing tournaments
+  * Updated player and matches tables to reference a tournament id 
+  * Updated tournament_test.py test suite for handling tourmanets
+  * Updated comments to reflect multiple tournament support
+
 ### 7/6/15 - Finished Swiss Pairing:
   * Added more comments to code
   * Finished logic for reading every other standing and pairing it to closest winner
@@ -36,10 +42,12 @@ Contains:
 
 ### To run:
 
-1. Download and unzip the project folder from [here](https://github.com/hanwenyan/databases/archive/master.zip).
+1. Download and unzip the project folder from 
+[here](https://github.com/hanwenyan/databases/archive/master.zip).
 2. Go to the vagrant folder and run `vagrant up` and `vagrant ssh`.
-3. Run `psql tournament -f tournament.sql` script which will set up the database.
-4. Run `tournament_test.py` which will run the provided test suite to test the database and code.
+3. Run `psql tournament -f tournament.sql & python tournament_test.py` 
+which will set up the database and run the provided test suite to test 
+the database and code.
 5. Run `psql tournament` in order to perform queries against the database.
 
 ## Creators
