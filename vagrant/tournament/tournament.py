@@ -42,12 +42,18 @@ def deleteTournament():
     db.commit()
     db.close()
 
-def countPlayers():
-    """Returns the number of players currently registered."""
+def countPlayers(tournament_id):
+    """Returns the number of players currently registered for a given 
+    tournament id.
+
+    Args:
+      tournament_id: the tournament's id (UNIQUE)
+    """
 
     db = connect()
     c = db.cursor()
-    c.execute("SELECT count(id) FROM players;")
+    c.execute("SELECT count(id) FROM players WHERE tournament_id_fk = %s ;",
+              (bleach.clean(tournament_id))) # Sanitize the value
     player_count = int(c.fetchall()[0][0])
     db.close()
 
@@ -72,7 +78,7 @@ def registerPlayer(name, tournament_id):
     c.execute("INSERT INTO players (player_name, tournament_id_fk) "
               "VALUES (%s, %s);", 
              (bleach.clean(name),
-              bleach.clean(tournament_id))) # Sanitize the name
+              bleach.clean(tournament_id))) # Sanitize the value
     db.commit()
     db.close()
 
@@ -90,7 +96,7 @@ def createTournament(tournament_name):
     db = connect()
     c = db.cursor()
     c.execute("INSERT INTO tournament (name) VALUES (%s);", 
-             (bleach.clean(tournament_name),)) # Sanitize the name
+             (bleach.clean(tournament_name),)) # Sanitize the value
     db.commit()
     db.close()
 
