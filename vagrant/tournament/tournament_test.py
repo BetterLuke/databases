@@ -8,6 +8,7 @@ from tournament import *
 testTournamentName = "Best Tournament Ever"
 testTournamentId = 1
 
+
 def testDeleteTournament():
     deleteMatches()
     deletePlayers()
@@ -113,7 +114,8 @@ def testReportMatches():
         if i in (id1, id3) and w != 1:
             raise ValueError("Each match winner should have one win recorded.")
         elif i in (id2, id4) and w != 0:
-            raise ValueError("Each match loser should have zero wins recorded.")
+            raise ValueError(
+                "Each match loser should have zero wins recorded.")
     print "7. After a match, players have updated standings."
 
 
@@ -121,7 +123,7 @@ def testPairings():
     deleteMatches()
     deletePlayers()
     registerPlayer("Twilight Sparkle", testTournamentId)
-    registerPlayer("Fluttershy",testTournamentId)
+    registerPlayer("Fluttershy", testTournamentId)
     registerPlayer("Applejack", testTournamentId)
     registerPlayer("Pinkie Pie", testTournamentId)
     standings = playerStandings(testTournamentId)
@@ -153,5 +155,3 @@ if __name__ == '__main__':
     testReportMatches()
     testPairings()
     print "Success!  All tests pass!"
-
-

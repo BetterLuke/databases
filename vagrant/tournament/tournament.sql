@@ -11,11 +11,17 @@
 --                     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 --                     id SERIAL );
 
+-- Destroy the existing tournament database to start fresh
+DROP DATABASE IF EXISTS tournament;
+
 -- Create the tournament database for all of the tournament information
 CREATE DATABASE tournament;
 
+-- Connect to the tournament database to create the tables
+\c tournament;
+
 -- Destroy existing tables for testing purposes
-DROP TABLE tournament, players, matches CASCADE;
+DROP TABLE IF EXISTS tournament, players, matches CASCADE;
 
 -- Create a table for multiple tournaments with minimum fields
 CREATE TABLE tournament ( name TEXT,
