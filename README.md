@@ -16,9 +16,14 @@ Contains:
 
 ## Changelog:
 
+### 7/17/15 - Changed pairing method to use zip function
+
+  * swissPairings method now uses the zip function for testing, no functionality changes
+
 ### 7/15/15 - Refactoring code
   * Refactored code to remove repetition and added format() for queries to use tuples
   * Updated tournament.sql to connect to tournament database so tables are not created in a separate database
+  * Updated tournament_test.py test cases to avoid deleting after every test case and now creates a new tournament to test instead
 
 ### 7/14/15 - Added support for multiple tournaments:
   * Added a tournament table for storing tournaments
@@ -49,9 +54,8 @@ Contains:
 1. Download and unzip the project folder from 
 [here](https://github.com/hanwenyan/databases/archive/master.zip).
 2. Go to the vagrant folder and run `vagrant up` and `vagrant ssh`.
-3. Run `psql tournament -f tournament.sql` which will create the tournament database.
-4. Run `python tournament_test.py` which will run the provided test suite to test 
-the database and code.
+3. Run `createdb tournament` in the command line to create a tournament database.
+4. Run `psql -f tournament.sql && python tournament_test.py` which will create the database tables and run the provided test suite to test the database and code.
 5. Run `psql tournament` in order to perform queries against the database.
 
 ## Creators

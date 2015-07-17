@@ -1,63 +1,72 @@
 #!/usr/bin/env python
 #
 # Test cases for tournament.py
-# Updated test cases to handle multiple tournaments
 
 from tournament import *
 
 testTournamentName = "Best Tournament Ever"
-testTournamentId = 1
 
 
 def testDeleteTournament():
     deleteMatches()
     deletePlayers()
     deleteTournament()
-    print "Tournaments can be deleted."
+    print "0. Tournaments can be deleted."
 
 
 def testCreateTournament():
     createTournament(testTournamentName)
-    print "0. Tournaments can be created."
+    print "1. Tournaments can be created."
 
 
 def testDeleteMatches():
     deleteMatches()
-    print "1. Old matches can be deleted."
+    print "2. Old matches can be deleted."
 
 
 def testDelete():
     deleteMatches()
     deletePlayers()
-    print "2. Player records can be deleted."
+    print "3. Player records can be deleted."
 
 
 def testCount():
     deleteMatches()
     deletePlayers()
+
+    testTournamentId = getTournamentId(testTournamentName)
+
     c = countPlayers(testTournamentId)
     if c == '0':
         raise TypeError(
             "countPlayers() should return numeric zero, not string '0'.")
     if c != 0:
         raise ValueError("After deleting, countPlayers should return zero.")
-    print "3. After deleting, countPlayers() returns zero."
+    print "4. After deleting, countPlayers() returns zero."
 
 
 def testRegister():
-    deleteMatches()
-    deletePlayers()
+
+    testTournamentName = "Second Best Tournament Ever"
+
+    createTournament(testTournamentName)
+    testTournamentId = getTournamentId(testTournamentName)
+
     registerPlayer("Chandra Nalaar", testTournamentId)
     c = countPlayers(testTournamentId)
     if c != 1:
         raise ValueError(
             "After one player registers, countPlayers() should be 1.")
-    print "4. After registering a player, countPlayers() returns 1."
+    print "5. After registering a player, countPlayers() returns 1."
 
 
 def testRegisterCountDelete():
-    deleteMatches()
-    deletePlayers()
+
+    testTournamentName = "Third Best Tournament Ever"
+
+    createTournament(testTournamentName)
+    testTournamentId = getTournamentId(testTournamentName)
+
     registerPlayer("Markov Chaney", testTournamentId)
     registerPlayer("Joe Malik", testTournamentId)
     registerPlayer("Mao Tsu-hsi", testTournamentId)
@@ -70,12 +79,16 @@ def testRegisterCountDelete():
     c = countPlayers(testTournamentId)
     if c != 0:
         raise ValueError("After deleting, countPlayers should return zero.")
-    print "5. Players can be registered and deleted."
+    print "6. Players can be registered and deleted."
 
 
 def testStandingsBeforeMatches():
-    deleteMatches()
-    deletePlayers()
+
+    testTournamentName = "Fourth Best Tournament Ever"
+
+    createTournament(testTournamentName)
+    testTournamentId = getTournamentId(testTournamentName)
+
     registerPlayer("Melpomene Murray", testTournamentId)
     registerPlayer("Randy Schwartz", testTournamentId)
     standings = playerStandings(testTournamentId)
@@ -93,12 +106,16 @@ def testStandingsBeforeMatches():
     if set([name1, name2]) != set(["Melpomene Murray", "Randy Schwartz"]):
         raise ValueError("Registered players' names should appear in standings, "
                          "even if they have no matches played.")
-    print "6. Newly registered players appear in the standings with no matches."
+    print "7. Newly registered players appear in the standings with no matches."
 
 
 def testReportMatches():
-    deleteMatches()
-    deletePlayers()
+
+    testTournamentName = "Fifth Best Tournament Ever"
+
+    createTournament(testTournamentName)
+    testTournamentId = getTournamentId(testTournamentName)
+
     registerPlayer("Bruno Walton", testTournamentId)
     registerPlayer("Boots O'Neal", testTournamentId)
     registerPlayer("Cathy Burton", testTournamentId)
@@ -116,12 +133,16 @@ def testReportMatches():
         elif i in (id2, id4) and w != 0:
             raise ValueError(
                 "Each match loser should have zero wins recorded.")
-    print "7. After a match, players have updated standings."
+    print "8. After a match, players have updated standings."
 
 
 def testPairings():
-    deleteMatches()
-    deletePlayers()
+
+    testTournamentName = "Sixth Best Tournament Ever"
+
+    createTournament(testTournamentName)
+    testTournamentId = getTournamentId(testTournamentName)
+
     registerPlayer("Twilight Sparkle", testTournamentId)
     registerPlayer("Fluttershy", testTournamentId)
     registerPlayer("Applejack", testTournamentId)
@@ -140,7 +161,7 @@ def testPairings():
     if correct_pairs != actual_pairs:
         raise ValueError(
             "After one match, players with one win should be paired.")
-    print "8. After one match, players with one win are paired."
+    print "9. After one match, players with one win are paired."
 
 
 if __name__ == '__main__':

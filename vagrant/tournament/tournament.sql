@@ -24,7 +24,7 @@ CREATE DATABASE tournament;
 DROP TABLE IF EXISTS tournament, players, matches CASCADE;
 
 -- Create a table for multiple tournaments with minimum fields
-CREATE TABLE tournament ( name TEXT,
+CREATE TABLE tournament ( name TEXT UNIQUE,
 						  id SERIAL PRIMARY KEY );
 
 -- Create a table for player information with minimum fields

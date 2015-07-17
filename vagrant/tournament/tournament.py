@@ -9,10 +9,13 @@ import bleach
 
 def connect(database_name="tournament"):
     """Connect to the PostgreSQL database.  Returns a database connection."""
-
-    db = psycopg2.connect("dbname={}".format(database_name))
-    cursor = db.cursor()
-    return db, cursor
+    try:
+        db = psycopg2.connect("dbname={}".format(database_name))
+        cursor = db.cursor()
+        return db, cursor
+    except:
+        print ("""Database connection failed. Check to ensure the 
+            tournament database is available.""")
 
 
 def deleteMatches():
@@ -51,6 +54,19 @@ def deleteTournament():
     db.close()
 
 
+def getTournamentId(tournamentName):
+    """Returns a tournament id if the name is known."""
+
+    db, c = connect()
+
+    query = "SELECT id FROM tournament WHERE name = %s;"
+    c.execute(query, (bleach.clean(tournamentName),))  # Sanitize the value
+    tournament_id = int(c.fetchall()[0][0])
+
+    db.close()
+    return tournament_id
+
+
 def countPlayers(tournament_id):
     """Returns the number of players currently registered for a given
     tournament id.
@@ -61,8 +77,8 @@ def countPlayers(tournament_id):
 
     db, c = connect()
 
-    query = "SELECT count(id) FROM players WHERE tournament_id_fk = %s ;"
-    c.execute(query, (bleach.clean(tournament_id)))  # Sanitize the value
+    query = "SELECT count(id) FROM players WHERE tournament_id_fk = %s;"
+    c.execute(query, (bleach.clean(tournament_id),))  # Sanitize the value
     player_count = int(c.fetchall()[0][0])
 
     db.close()
@@ -232,10 +248,17 @@ def swissPairings(tournament_id):
       (610, 'Fluttershy', 0, 1), (612, 'Pinkie Pie', 0, 1)]
     """
 
-    pairings = []
+    zip_pairings = []
 
     for x in range(len(standings[::2])):
-        pairings.append((standings[x * 2][0], standings[x * 2][1],
-                         standings[x * 2 + 1][0], standings[x * 2 + 1][1]))
+        pair = zip(standings[x * 2][:2], standings[x * 2 + 1][:2])
+        zip_pairings.append((pair[0][0], pair[1][0], pair[0][1], pair[1][1]))
 
-    return pairings
+    # Original pairing method, replaced by using zip() function instead
+    # pairings = []
+
+    # for x in range(len(standings[::2])):
+    #     pairings.append((standings[x * 2][0], standings[x * 2][1],
+    #                      standings[x * 2 + 1][0], standings[x * 2 + 1][1]))
+
+    return zip_pairings
