@@ -53,6 +53,8 @@ Contains:
 - [PostgreSQL 9.3.8 or later](http://www.postgresql.org/download/) for creating the database
 - [psycopg](http://initd.org/psycopg/download/) for connecting to the PostgreSQL database
 - [bleach](http://bleach.readthedocs.org/en/latest/) for protecting against database attacks
+- *optional* [Vagrant](http://www.vagrantup.com/downloads.html) for using a virtual instance to optimize workflows
+- *optional* [VirtualBox](https://www.virtualbox.org/) **required if using Vagrant**
 
 ### To run:
 
