@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # tournament.py -- implementation of a Swiss-system tournament
-#
+# Contains all of the functions required to run the tournament database
 
 import psycopg2
 import bleach
@@ -16,6 +16,25 @@ def connect(database_name="tournament"):
     except:
         print ("""Database connection failed. Check to ensure the 
             tournament database is available.""")
+        sys.exit()
+
+
+def updateDatabase(query, bleached, db, c):
+    """Update the database and close the connection."""
+
+    c.execute(query, bleached)
+    db.commit()
+    db.close()
+
+
+def readDatabase(query, bleached, db, c):
+    """Read from the database and close the connection."""
+
+    c.execute(query, bleached)
+    result = c.fetchall()
+    db.close()
+
+    return result
 
 
 def deleteMatches():
@@ -23,10 +42,10 @@ def deleteMatches():
 
     db, c = connect()
 
-    c.execute("TRUNCATE TABLE matches RESTART IDENTITY CASCADE;")
+    query = "TRUNCATE TABLE matches RESTART IDENTITY CASCADE;"
+    bleached = None
 
-    db.commit()
-    db.close()
+    updateDatabase(query, bleached, db, c)
 
 
 def deletePlayers():
@@ -34,10 +53,10 @@ def deletePlayers():
 
     db, c = connect()
 
-    c.execute("TRUNCATE TABLE players RESTART IDENTITY CASCADE;")
+    query = "TRUNCATE TABLE players RESTART IDENTITY CASCADE;"
+    bleached = None
 
-    db.commit()
-    db.close()
+    updateDatabase(query, bleached, db, c)
 
 
 def deleteTournament():
@@ -48,10 +67,10 @@ def deleteTournament():
 
     db, c = connect()
 
-    c.execute("TRUNCATE TABLE tournament RESTART IDENTITY CASCADE;")
+    query = "TRUNCATE TABLE tournament RESTART IDENTITY CASCADE;"
+    bleached = None
 
-    db.commit()
-    db.close()
+    updateDatabase(query, bleached, db, c)
 
 
 def getTournamentId(tournamentName):
@@ -60,10 +79,11 @@ def getTournamentId(tournamentName):
     db, c = connect()
 
     query = "SELECT id FROM tournament WHERE name = %s;"
-    c.execute(query, (bleach.clean(tournamentName),))  # Sanitize the value
-    tournament_id = int(c.fetchall()[0][0])
+    bleached = (bleach.clean(tournamentName),)
 
-    db.close()
+    result = readDatabase(query, bleached, db, c)
+    tournament_id = int(result[0][0])
+
     return tournament_id
 
 
@@ -78,10 +98,11 @@ def countPlayers(tournament_id):
     db, c = connect()
 
     query = "SELECT count(id) FROM players WHERE tournament_id_fk = %s;"
-    c.execute(query, (bleach.clean(tournament_id),))  # Sanitize the value
-    player_count = int(c.fetchall()[0][0])
+    bleached = (bleach.clean(tournament_id),)
 
-    db.close()
+    result = readDatabase(query, bleached, db, c)
+    player_count = int(result[0][0])
+
     return player_count
 
 
@@ -103,12 +124,9 @@ def registerPlayer(name, tournament_id):
 
     query = """INSERT INTO players (player_name, tournament_id_fk)
                VALUES (%s, %s);"""
-    c.execute(query,
-              (bleach.clean(name),
-               bleach.clean(tournament_id)))  # Sanitize the values
+    bleached = (bleach.clean(name), bleach.clean(tournament_id))
 
-    db.commit()
-    db.close()
+    updateDatabase(query, bleached, db, c)
 
 
 def createTournament(tournament_name):
@@ -125,44 +143,9 @@ def createTournament(tournament_name):
     db, c = connect()
 
     query = "INSERT INTO tournament (name) VALUES (%s);"
+    bleached = (bleach.clean(tournament_name),)
 
-    c.execute(query, (bleach.clean(tournament_name),))  # Sanitize the value
-
-    db.commit()
-    db.close()
-
-
-def createStandingsView(tournament_id):
-    """
-    Creates a view in the database for standings for a given
-    tournament id.
-
-    Args:
-      tournament_id: the tournament's id (UNIQUE)
-    """
-
-    db, c = connect()
-
-    query = """CREATE OR REPLACE VIEW standings AS
-              SELECT p.id AS id,
-              p.player_name AS name,
-              COALESCE((SELECT count(winner)
-              FROM matches m
-              WHERE winner = p.id AND tournament_id_fk = {0}
-              GROUP BY winner, tournament_id_fk), 0) AS wins,
-              COALESCE((SELECT count(loser)
-              FROM matches m
-              WHERE loser = p.id AND tournament_id_fk = {0}
-              GROUP BY loser, tournament_id_fk), 0) AS losses
-              FROM players p
-              WHERE tournament_id_fk = {0};"""
-
-    parameters = (bleach.clean(tournament_id))
-
-    c.execute(query.format(*parameters))
-
-    db.commit()
-    db.close()
+    updateDatabase(query, bleached, db, c)
 
 
 def playerStandings(tournament_id):
@@ -183,18 +166,18 @@ def playerStandings(tournament_id):
         matches: the number of matches the player has played
     """
 
-    createStandingsView(tournament_id)
-
     db, c = connect()
 
     query = """SELECT id, name, wins, wins+losses AS matches
-               FROM standings ORDER BY wins DESC, losses ASC;"""
+               FROM standings WHERE tournament_id = %s
+               ORDER BY wins DESC, losses ASC;"""
+    bleached = (bleach.clean(tournament_id),)
 
-    c.execute(query)
+    result = readDatabase(query, bleached, db, c)
     standings = [(int(row[0]), str(row[1]),
                   int(row[2]), int(row[3]))
-                 for row in c.fetchall()]
-    db.close()
+                 for row in result]
+
     return standings
 
 
@@ -210,15 +193,11 @@ def reportMatch(winner, loser, tournament_id):
     db, c = connect()
 
     query = """INSERT INTO matches (winner, loser, tournament_id_fk)
-              VALUES ({0}, {1}, {2});"""
+              VALUES (%s, %s, %s);"""
+    bleached = (bleach.clean(winner), bleach.clean(loser),
+                bleach.clean(tournament_id))
 
-    parameters = (bleach.clean(winner), bleach.clean(loser),
-                  bleach.clean(tournament_id))
-
-    c.execute(query.format(*parameters))  # Sanitize the values
-
-    db.commit()
-    db.close()
+    updateDatabase(query, bleached, db, c)
 
 
 def swissPairings(tournament_id):
@@ -239,20 +218,20 @@ def swissPairings(tournament_id):
         name1: the first player's name
         id2: the second player's unique id
         name2: the second player's name
-    """
-    standings = playerStandings(tournament_id)
 
-    """
     Test case:
     [(609, 'Twilight Sparkle', 1, 1), (611, 'Applejack', 1, 1),
       (610, 'Fluttershy', 0, 1), (612, 'Pinkie Pie', 0, 1)]
     """
 
-    zip_pairings = []
+    standings = playerStandings(tournament_id)
 
-    for x in range(len(standings[::2])):
-        pair = zip(standings[x * 2][:2], standings[x * 2 + 1][:2])
-        zip_pairings.append((pair[0][0], pair[1][0], pair[0][1], pair[1][1]))
+    pairings = []
+
+    swiss_pairs = zip(standings[0::2], standings[1::2])
+
+    for x in swiss_pairs:
+        pairings.append((x[0][0], x[0][1], x[1][0], x[1][1]))
 
     # Original pairing method, replaced by using zip() function instead
     # pairings = []
@@ -261,4 +240,4 @@ def swissPairings(tournament_id):
     #     pairings.append((standings[x * 2][0], standings[x * 2][1],
     #                      standings[x * 2 + 1][0], standings[x * 2 + 1][1]))
 
-    return zip_pairings
+    return pairings

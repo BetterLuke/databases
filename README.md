@@ -1,7 +1,7 @@
-# Intro to Relational Databases
+# Tournament Database (Intro to Relational Databases)
 =============
 
-These are the files for the Introduction to Relational Databases class. The goal here is to provide a introduction to designing a database through the use of PostgreSQL.
+This is a project for creating a simple tournament database. The user will be able to register players for tournaments, report matches, check standings, and producess swiss pairings for future rounds of tournaments.
 
 Contains:
 
@@ -16,9 +16,12 @@ Contains:
 
 ## Changelog:
 
-### 7/17/15 - Changed pairing method to use zip function
+### 7/20/15 - Refactoring code and changed swissPairing to use zip()
 
-  * swissPairings method now uses the zip function for testing, no functionality changes
+  * Refactored code to remove more repetition by adding updateDatabase() and readDatabase() methods
+  * Updated schema to include composite key for player / tournament pairs
+  * Removed creating standings in view since tournament_id was added to players schema instead
+  * Updated swissPairings method now uses the zip function for testing, no functionality changes
 
 ### 7/15/15 - Refactoring code
   * Refactored code to remove repetition and added format() for queries to use tuples
@@ -46,8 +49,10 @@ Contains:
 
 ### Requirements:
 
-- Python 2.7
-- Vagrant
+- [Python 2.7](https://www.python.org/downloads/) for running the tournament functions and tests
+- [PostgreSQL 9.3.8 or later](http://www.postgresql.org/download/) for creating the database
+- [psycopg](http://initd.org/psycopg/download/) for connecting to the PostgreSQL database
+- [bleach](http://bleach.readthedocs.org/en/latest/) for protecting against database attacks
 
 ### To run:
 

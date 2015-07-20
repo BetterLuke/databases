@@ -30,27 +30,28 @@ CREATE TABLE tournament ( name TEXT UNIQUE,
 -- Create a table for player information with minimum fields
 CREATE TABLE players ( player_name TEXT,
 					   tournament_id_fk INT REFERENCES tournament(id),
-					   id SERIAL PRIMARY KEY );
+					   id SERIAL, 
+					   PRIMARY KEY (id, tournament_id_fk) );
 
 -- Create a table for matches played with minimum fields
-CREATE TABLE matches ( winner INT REFERENCES players(id),
-					   loser INT REFERENCES players(id),
+CREATE TABLE matches ( winner INT,
+					   loser INT,
 					   tournament_id_fk INT REFERENCES tournament(id),
+					   FOREIGN KEY (winner, tournament_id_fk) REFERENCES players (id, tournament_id_fk),
+					   FOREIGN KEY (loser, tournament_id_fk) REFERENCES players (id, tournament_id_fk),
 					   id SERIAL PRIMARY KEY );
-
-/* The following query was added to the python in order to handle updating
-the standings VIEW if a user wants to query a different tournament.
 
 -- Create a view for standings using the players and matches tables
 CREATE OR REPLACE VIEW standings AS
 	SELECT p.id AS id, 
 		   p.player_name AS name,
+		   p.tournament_id_fk AS tournament_id,
 		   COALESCE((SELECT count(winner)
     		 FROM matches
     		 WHERE winner = p.id
-    		 GROUP BY winner, tournament_name_fk), 0) AS wins,
+    		 GROUP BY winner, tournament_id_fk), 0) AS wins,
 		   COALESCE((SELECT count(loser)
     		 FROM matches
     		 WHERE loser = p.id
-    		 GROUP BY loser, tournament_name_fk), 0) AS losses
-	FROM players p;*/
+    		 GROUP BY loser, tournament_id_fk), 0) AS losses
+	FROM players p;
